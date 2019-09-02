@@ -2,15 +2,15 @@ package JDBC;
 
 import java.util.List;
 
-import City.city;
+import City.City;
 
 public interface CityDao {
 
-	city findById(int id);
-	List<city> findByCode(String code);
-	List<city> findByName(String name);
-	List<city> findAll();
-	city add(city city);
-	city update(city city);
-	int delete(city city);
+	City findById(int id);
+	List<City> findByCode(String code);
+	List<City> findByName(String name);
+	List<City> findAll();
+	City add(City city);
+	City update(City city);
+	int delete(City city);
 }

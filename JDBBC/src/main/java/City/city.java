@@ -1,6 +1,6 @@
 package City;
 
-public class city {
+public class City {
 
 	
 	//int id, string name, string countrycode, string district, int population
@@ -10,7 +10,7 @@ public class city {
 	private String district;
 	private int population;
 	
-	public city(int id,String name, String district, int population) {
+	public City(int id,String name, String district, int population) {
 		
 		this.id = id;
 		this.name = name;
@@ -67,7 +67,7 @@ public class city {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		city other = (city) obj;
+		City other = (City) obj;
 		if (district == null) {
 			if (other.district != null)
 				return false;
