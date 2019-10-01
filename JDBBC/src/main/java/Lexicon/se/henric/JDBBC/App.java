@@ -1,5 +1,7 @@
 package Lexicon.se.henric.JDBBC;
 
+import JDBC.cityDaoJDBC;
+
 /**
  * Hello world!
  *
@@ -8,6 +10,8 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+      cityDaoJDBC CDJ = new cityDaoJDBC();
+      
+      CDJ.findAll();
     }
 }

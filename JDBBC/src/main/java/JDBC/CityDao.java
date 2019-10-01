@@ -1,16 +1,20 @@
 package JDBC;
-
 import java.util.List;
+import java.util.Optional;
 
-import City.City;
+
+
+import city.City;
+
+
 
 public interface CityDao {
 
-	City findById(int id);
+	Optional<? extends Object> findById(int id);
 	List<City> findByCode(String code);
 	List<City> findByName(String name);
 	List<City> findAll();
-	City add(City city);
+	City create(City city);
 	City update(City city);
 	int delete(City city);
 }

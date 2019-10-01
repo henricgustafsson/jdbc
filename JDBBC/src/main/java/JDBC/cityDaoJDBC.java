@@ -1,240 +1,238 @@
 package JDBC;
 
+import JDBC.Database;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import City.City;
+import com.mysql.jdbc.Statement;
+
+import city.City;
+
 
 public class cityDaoJDBC implements CityDao {
 	
-	Connection connection;
-	PreparedStatement findByID;
-	PreparedStatement findByCode;
-	PreparedStatement findByName;
-	PreparedStatement findAll;
-	PreparedStatement createCity;
-	PreparedStatement updateCity;
-	PreparedStatement deleteCity;
+
+	
+	private static String FIND_BY_ID = "SELECT * FROM city WHERE id=?";
+	private static String FIND_BY_CODE ="SELECT * FROM city WHERE id=?";
+	private static String FIND_BY_NAME ="SELECT * FROM city WHERE name =?";
+	private static String FIND_ALL ="SELECT * FROM city";
+	private static String CREATE_CITY ="INSERT INTO city (name,countrycode,district,population) VALUES (?,?,?,?)";
+	private static String UPDATE_CITY ="UPDATE city SET name=?,countrycode=?,district=?,population=? WHERE id=?";
+	private static String DELETE_CITY ="DELETE FROM city WHERE id=?";
 	
 	
-	public cityDaoJDBC() {
-		try {
-			connection = DriverManager.getConnection("jdbc:mysql://localhost;3306/world","root","root");
-			
-			
-			findByID = connection.prepareStatement("SELECT * FROM city WHERE id=?");
-			findByCode =connection.prepareStatement("SELECT * FROM city WHERE countrycode=?");
-			findByName =connection.prepareStatement("SELECT * FROM city WHERE name =?");
-			findAll =connection.prepareStatement("SELECT * FROM city");
-			createCity =connection.prepareStatement("INSERT INTO city (name,countrycode,district,population) VALUES (?,?,?,?)");
-			updateCity =connection.prepareStatement("UPDATE city SET name=?,countrycode=?,district=?,population=? WHERE id=?");
-			deleteCity =connection.prepareStatement("DELETE FROM city WHERE id=?");
-			
-		}
-		catch(SQLException e) {
-			System.out.println("Connection error.");
-		}
-		
-	}
+	
 
-	public City findById(int id) {
-		ResultSet rs = null;
-		int id = 0;
-		String name = null;
-		String district = null;
-		int population = 0;
-		City city =  null;
-		
-		try {
-			findByID.setString(1,id+"%");
-			rs= findByID.executeQuery();
-			while (rs.next()) {
-				id = rs.getInt("id");
-				name = rs.getString("name");
-				district = rs.getString("name");
-				population = rs.getInt("population");
-
+	public Optional<? extends Object> findById(int id) {
+		City city = null;
+		try(Connection conn = Database.getConnection()){
+			
+			PreparedStatement statement = prepareFindByIdStatement(conn, id,FIND_BY_ID);
+			ResultSet rs =statement.executeQuery();
+			
+			while(rs.next()) {
+				city = convertResultSetToCity(rs);
 			}
-			if(id !=0 || name != null || district != null || population < 0) {
-				try {
-					new City(id,name,district,population);
-					
-				} catch (Exception e) {
-					System.out.println("Internal error please try again");
-				}
-			}
+			
 		} catch (SQLException e) {
-			System.out.println("Internal error. Try again");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		if(city !=null) { 
-			return city;
-		}
-		throw new Exception("Internal error. Try again");
+		return city == null ? Optional.empty() : Optional.of(city);
+				
 	}
 
+	
+	
+
+	private PreparedStatement prepareFindByIdStatement(Connection conn,int id,final String findById) throws SQLException {
+		PreparedStatement statement = conn.prepareStatement(findById);
+		statement.setInt(1,id);
+		return statement;
+	}
+	
 	public List<City> findByCode(String code) {
 		
-		ResultSet rs= null;
-		int id= 0;
-		String name = null;
-		String district = null;
-		int population = 0;
-		List<City> cities = new ArrayList<City>();
+		List<City> cities = new ArrayList<City>();		
 		
-		try{
-			findByCode.setString(1,code+"%");
-			rs = findByCode.executeQuery();
+		try(Connection conn = Database.getConnection()){
+			PreparedStatement statement = prepareFindByCodeStatement(conn,code,FIND_BY_CODE);
+			ResultSet rs =statement.executeQuery();
 			while(rs.next()) {
-				id= rs.getInt("id");
-				name= rs.getString("name");
-				district= rs.getString("district");
-				population = rs.getInt("population");
-				
-				if(id !=0 || name !=null ||district != null || population <0) {
-					try {
-						cities.add(new City(id,name,district,population));
-					}catch(Exception e) {
-						System.out.println("Internal error please try again");
-					}
-				}
-			}
-			
+				cities.add(convertResultSetToCity(rs));
+			}			
 		} catch (SQLException e) {
-			System.out.println("Internal error. Try again");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
+		
 		return cities;
+	}
+
+	private PreparedStatement prepareFindByCodeStatement(Connection conn,String code, final String findByCode) throws SQLException {
 		
+		PreparedStatement statement = conn.prepareStatement(findByCode);
+		statement.setString(1, code);
 		
-		
+		return 	null;
 	}
 
 	public List<City> findByName(String name) {
-		ResultSet rs= null;
-		int id= 0;
-		String name = null;
-		String district = null;
-		int population = 0;
 		List<City> cities = new ArrayList<City>();
 		
-		try{
-			findByName.setString(1,name+"%");
-			rs = findByName.executeQuery();
+		try(Connection conn = Database.getConnection()){
+			PreparedStatement statement = prepareFindByNameStatement(conn, name, FIND_BY_NAME);
+			ResultSet rs = statement.executeQuery();
 			while(rs.next()) {
-				id= rs.getInt("id");
-				name= rs.getString("name");
-				district= rs.getString("district");
-				population = rs.getInt("population");
-				
-				if(id !=0 || name !=null ||district != null || population <0) {
-					try {
-						cities.add(new City(id,name,district,population));
-					}catch(Exception e) {
-						System.out.println("Internal error please try again");
-					}
-				}
+				cities.add(convertResultSetToCity(rs));
 			}
 			
 		} catch (SQLException e) {
-			System.out.println("Internal error. Try again");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		return cities;
+	}
+	
+	private PreparedStatement prepareFindByNameStatement(Connection conn,String name, final String findByName) throws SQLException {
+		
+		PreparedStatement statement = conn.prepareStatement(findByName);
+		statement.setString(1, name);
+		
+		return 	null;
 	}
 
 	public List<City> findAll() {
 		
-		ResultSet rs= null;
-		int id= 0;
-		String name = null;
-		String district = null;
-		int population = 0;
 		List<City> cities = new ArrayList<City>();
 		
-		try{
-			rs.findAll.executeQuery();
+		try(Connection conn = Database.getConnection()){
+			
+			PreparedStatement statement = conn.prepareStatement(FIND_ALL);
+			ResultSet rs =statement.executeQuery();
 			while(rs.next()) {
-				id = rs.getInt("id");
-				name = rs.getString("name");
-				district = rs.getString("district");
-				population = rs.getInt("population");
-				
-				if(id !=0 || name != null || district !=null || population <0){
-					try {
-						cities.add(new City(id,nmae,district,population));
-					} catch(Exception e) {
-						System.out.println("Internal error please try again");
-					}
-				}
+				cities.add(convertResultSetToCity(rs));
 			}
-
+			
 		} catch (SQLException e) {
-			System.out.println("Internal error. Try again");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		return cities;
 	}
 
-	public City add(City city) {
-		
-		
-		addCity.setString(4, city.name,city.countrycode,city.district,city.population);
-		
-		try {
-			addCity.executeQuery();			
-			
-		} catch(Exception e) {
-			System.out.println("Internal error please try again");
+	public City create(City city) {
+		if(city.getId() !=0) {
+			return city;
 		}
 		
-
-	} catch (SQLException e) {
-		System.out.println("Internal error. Try again");
-	}
-	
-		return city;
+		ResultSet keySet = null;
+		City savedCity = null;
 		
+		try(Connection conn= Database.getConnection()){
+			PreparedStatement statement = conn.prepareStatement(CREATE_CITY,Statement.RETURN_GENERATED_KEYS);
+			//int id, String name, string district,int population
+			statement.setInt(1, city.getId());
+			statement.setString(2, city.getName());
+			statement.setString(3, city.getDistrict());
+			statement.setInt(4, city.getPopulation());
+			
+			statement.executeUpdate();
+			
+			keySet = statement.getGeneratedKeys();
+			
+			while(keySet.next()) {
+				savedCity = new City(keySet.getInt(1), city.getName(),city.getDistrict(),city.getPopulation());
+				
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			if(keySet != null) {
+				try {
+					keySet.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return savedCity;
 	}
 
 	public City update(City city) {
-		updateCity.setString(4, city.name,city.countrycode,city.district,city.population);
 		
-		try {
-			updateCity.executeQuery();			
-			
-		} catch(Exception e) {
-			System.out.println("Internal error please try again");
+		if(city.getId() ==0) {
+			return city;
 		}
 		
-		} catch (SQLException e) {
-		System.out.println("Internal error. Try again");
-	}
+		ResultSet keySet = null;
 	
+		try(Connection conn = Database.getConnection()){
+			PreparedStatement statement = conn.prepareStatement(UPDATE_CITY);
+			//int id, String name, string district,int population
+			statement.setInt(1, city.getId());
+			statement.setString(2, city.getName());
+			statement.setString(3, city.getDistrict());
+			statement.setInt(4, city.getPopulation());
+			
+			statement.execute();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			if(keySet != null) {
+				try {
+					keySet.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		return city;
-		
 	}
 
 	public int delete(City city) {
 		
-		deleteCity.setString(1,city.id)
-		
-		try {
-			deleteCity.executeQuery();			
+		int id = 0;
+		try(Connection conn = Database.getConnection()){
+			PreparedStatement statement = conn.prepareStatement(DELETE_CITY,Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, city.getId());
 			
-		} catch(Exception e) {
-			System.out.println("Internal error please try again");
-		}
-		
+			statement.executeUpdate();
+			
+			id = statement.getGeneratedKeys().getInt(1);
+
+			
 		} catch (SQLException e) {
-		System.out.println("Internal error. Try again");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		return id;
 		
-		return city.id;
 	}
 
+	
+	private City convertResultSetToCity(ResultSet rs) throws SQLException {
+		
+		//int id, String name, string district,int population
+		return new City(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getInt(4));
+	}
+		
 }
