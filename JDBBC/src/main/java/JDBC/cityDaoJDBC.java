@@ -88,7 +88,7 @@ public class cityDaoJDBC implements CityDao {
 		List<City> cities = new ArrayList<City>();
 		
 		try{
-			//TODO: setstring for findByCode
+			findByCode.setString(1,code+"%");
 			rs = findByCode.executeQuery();
 			while(rs.next()) {
 				id= rs.getInt("id");
@@ -124,7 +124,7 @@ public class cityDaoJDBC implements CityDao {
 		List<City> cities = new ArrayList<City>();
 		
 		try{
-			//TODO: setstring for findByCode
+			findByName.setString(1,name+"%");
 			rs = findByName.executeQuery();
 			while(rs.next()) {
 				id= rs.getInt("id");
@@ -149,23 +149,92 @@ public class cityDaoJDBC implements CityDao {
 	}
 
 	public List<City> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		ResultSet rs= null;
+		int id= 0;
+		String name = null;
+		String district = null;
+		int population = 0;
+		List<City> cities = new ArrayList<City>();
+		
+		try{
+			rs.findAll.executeQuery();
+			while(rs.next()) {
+				id = rs.getInt("id");
+				name = rs.getString("name");
+				district = rs.getString("district");
+				population = rs.getInt("population");
+				
+				if(id !=0 || name != null || district !=null || population <0){
+					try {
+						cities.add(new City(id,nmae,district,population));
+					} catch(Exception e) {
+						System.out.println("Internal error please try again");
+					}
+				}
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Internal error. Try again");
+		}
+		
+		return cities;
 	}
 
 	public City add(City city) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		
+		addCity.setString(4, city.name,city.countrycode,city.district,city.population);
+		
+		try {
+			addCity.executeQuery();			
+			
+		} catch(Exception e) {
+			System.out.println("Internal error please try again");
+		}
+		
+
+	} catch (SQLException e) {
+		System.out.println("Internal error. Try again");
+	}
+	
+		return city;
+		
 	}
 
 	public City update(City city) {
-		// TODO Auto-generated method stub
-		return null;
+		updateCity.setString(4, city.name,city.countrycode,city.district,city.population);
+		
+		try {
+			updateCity.executeQuery();			
+			
+		} catch(Exception e) {
+			System.out.println("Internal error please try again");
+		}
+		
+		} catch (SQLException e) {
+		System.out.println("Internal error. Try again");
+	}
+	
+		return city;
+		
 	}
 
 	public int delete(City city) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		deleteCity.setString(1,city.id)
+		
+		try {
+			deleteCity.executeQuery();			
+			
+		} catch(Exception e) {
+			System.out.println("Internal error please try again");
+		}
+		
+		} catch (SQLException e) {
+		System.out.println("Internal error. Try again");
+		
+		return city.id;
 	}
 
 }
