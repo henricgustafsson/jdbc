@@ -14,7 +14,7 @@ public interface CityDao {
 	List<City> findByCode(String code);
 	List<City> findByName(String name);
 	List<City> findAll();
-	City create(City city);
+	Optional<City> create(City city);
 	City update(City city);
 	int delete(City city);
 }

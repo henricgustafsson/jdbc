@@ -5,17 +5,32 @@ public class City {
 	
 	//int id, string name, string countrycode, string district, int population
 	
+	private static int COUNTER=0;
 	private int id;
 	private String name;
+	private String countryCode;
 	private String district;
 	private int population;
 	
-	public City(int id,String name, String district, int population) {
+	public City(int id,String name, String countrycode, String district, int population) {
 		
-		this.id = id;
+		
 		this.name = name;
+		this.countryCode = countrycode;
 		this.district = district;
 		this.population = population;
+	}
+
+	public City(String name, String countrycode, String district, int population) {
+		this(COUNTER++,name,countrycode,district,population);
+	}
+
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	public int getId() {
@@ -83,6 +98,12 @@ public class City {
 		if (population != other.population)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "City \nid:" + id + "\nname:" + name + "\ncountryCode=" + countryCode + "\ndistrict=" + district
+				+ ", population=" + population + "]";
 	}
 	
 	
